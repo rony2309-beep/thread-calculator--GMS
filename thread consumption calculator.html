@@ -1,0 +1,1420 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Garment Thread Consumption Calculator — Factory Standard</title>
+<style>
+:root{
+  --bg:#F6F8FB; --card:#FFFFFF; --ink:#0F172A; --ink-soft:#64748B;
+  --accent:#0F766E; --accent-soft:#E6F4F2; --accent2:#2563EB; --accent2-soft:#EAF1FE;
+  --warn:#D97706; --warn-soft:#FEF3E2; --error:#DC2626; --error-soft:#FDECEC;
+  --success:#15803D; --success-soft:#E9F6EE; --border:#E2E8F0;
+  --radius:14px; --radius-sm:10px;
+  --shadow:0 1px 2px rgba(15,23,42,.04), 0 6px 20px rgba(15,23,42,.06);
+}
+*{box-sizing:border-box;}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;font-size:14px;line-height:1.5;}
+button{font-family:inherit;cursor:pointer;}
+input,select,textarea{font-family:inherit;font-size:13.5px;color:var(--ink);}
+.wrap{max-width:1360px;margin:0 auto;padding:0 20px;}
+header.app{position:sticky;top:0;z-index:30;background:var(--card);border-bottom:1px solid var(--border);}
+.hrow{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 0;flex-wrap:wrap;}
+.brand{display:flex;align-items:center;gap:10px;}
+.brand-icon{width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,var(--accent),#0b5651);display:flex;align-items:center;justify-content:center;color:#fff;flex:0 0 auto;font-weight:800;}
+.title{font-size:17px;font-weight:700;letter-spacing:-.01em;}
+.badge-v{font-size:10.5px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;background:var(--accent-soft);color:var(--accent);padding:3px 9px;border-radius:20px;margin-left:8px;}
+.save-status{font-size:12px;color:var(--ink-soft);display:flex;align-items:center;gap:5px;}
+.hactions{display:flex;gap:8px;align-items:center;flex-wrap:wrap;}
+.btn{display:inline-flex;align-items:center;gap:6px;font-weight:600;font-size:13px;padding:8px 14px;border-radius:10px;border:1px solid transparent;transition:all .16s ease;white-space:nowrap;}
+.btn:focus-visible{outline:2px solid var(--accent2);outline-offset:2px;}
+.btn-primary{background:var(--accent);color:#fff;}
+.btn-primary:hover{background:#0b5651;}
+.btn-outline{background:#fff;color:var(--ink);border-color:var(--border);}
+.btn-outline:hover{border-color:var(--accent);color:var(--accent);}
+.btn-danger{background:#fff;color:var(--error);border-color:#F3C9C7;}
+.btn-danger:hover{background:var(--error-soft);}
+.btn-sm{padding:6px 10px;font-size:12.5px;border-radius:8px;}
+.icon-btn{display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;border-radius:8px;border:1px solid var(--border);background:#fff;color:var(--ink-soft);transition:all .15s ease;font-size:13px;}
+.icon-btn:hover{color:var(--ink);border-color:var(--accent);}
+.icon-btn.danger:hover{color:var(--error);border-color:var(--error);}
+nav.steps{display:flex;border-bottom:1px solid var(--border);background:var(--card);}
+.step{flex:1;display:flex;align-items:center;justify-content:center;gap:8px;padding:12px 8px;font-weight:600;font-size:13px;color:var(--ink-soft);border-bottom:3px solid transparent;background:none;border-top:none;border-left:none;border-right:none;transition:all .16s ease;}
+.step.active{color:var(--accent);border-bottom-color:var(--accent);}
+.step-num{width:22px;height:22px;border-radius:50%;background:#EEF2F6;color:var(--ink-soft);display:flex;align-items:center;justify-content:center;font-size:11.5px;font-weight:700;}
+.step.active .step-num{background:var(--accent);color:#fff;}
+.card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);padding:20px;}
+.section-title{font-size:15px;font-weight:700;margin:0 0 4px;}
+.section-sub{font-size:12.5px;color:var(--ink-soft);margin:0 0 16px;}
+.field-label{display:flex;align-items:center;gap:5px;font-size:12px;font-weight:600;color:var(--ink-soft);margin-bottom:5px;}
+.hint{display:inline-flex;align-items:center;justify-content:center;width:14px;height:14px;border-radius:50%;background:#E2E8F0;color:var(--ink-soft);font-size:10px;font-weight:700;cursor:help;}
+.fi{width:100%;min-width:0;max-width:100%;padding:9px 10px;border:1px solid var(--border);border-radius:var(--radius-sm);background:#fff;}
+.fi:focus{outline:2px solid var(--accent2);outline-offset:1px;border-color:var(--accent2);}
+.fi.invalid{border-color:var(--error);background:var(--error-soft);}
+.err{font-size:11.5px;color:var(--error);margin-top:4px;display:flex;align-items:center;gap:4px;}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:14px 18px;}
+@media(max-width:760px){.grid-2{grid-template-columns:1fr;}}
+.chip-row{display:flex;gap:8px;flex-wrap:wrap;}
+.chip{padding:7px 14px;border-radius:20px;border:1px solid var(--border);background:#fff;font-size:12.5px;font-weight:600;color:var(--ink-soft);transition:all .15s ease;}
+.chip.active{background:var(--accent);border-color:var(--accent);color:#fff;}
+.chip:hover{border-color:var(--accent);}
+.kpi-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:14px;}
+@media(max-width:1100px){.kpi-grid{grid-template-columns:repeat(3,1fr);}}
+@media(max-width:640px){.kpi-grid{grid-template-columns:repeat(2,1fr);}}
+.kpi{background:#fff;border:1px solid var(--border);border-radius:var(--radius);padding:14px;}
+.kpi.strong{background:linear-gradient(160deg,var(--accent-soft),#fff);border-color:#CFE9E6;}
+.kpi-label{font-size:11px;font-weight:700;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.03em;}
+.kpi-value{font-size:22px;font-weight:800;letter-spacing:-.01em;margin-top:6px;}
+.kpi.strong .kpi-value{font-size:25px;color:var(--accent);}
+.kpi-unit{font-size:12px;font-weight:600;color:var(--ink-soft);margin-left:3px;}
+.kpi-sub{font-size:11px;color:var(--ink-soft);margin-top:3px;}
+.tbl-wrap{border:1px solid var(--border);border-radius:var(--radius);overflow:auto;background:#fff;}
+table{width:100%;border-collapse:collapse;}
+thead th{background:#F8FAFC;text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.04em;color:var(--ink-soft);font-weight:700;padding:10px 12px;border-bottom:1px solid var(--border);white-space:nowrap;}
+tbody td{padding:9px 12px;border-bottom:1px solid var(--border);font-size:13px;vertical-align:middle;}
+tbody tr:last-child td{border-bottom:none;}
+tbody tr.invalid{background:var(--error-soft);}
+tfoot td{padding:10px 12px;font-weight:700;background:#F8FAFC;border-top:2px solid var(--border);font-size:13px;}
+.num{font-variant-numeric:tabular-nums;text-align:right;}
+.row-actions{display:flex;gap:5px;justify-content:flex-end;}
+.tbl-inp{width:100%;min-width:70px;padding:6px 7px;border:1px solid var(--border);border-radius:7px;background:#fff;font-size:12.5px;}
+.tbl-inp:focus{outline:2px solid var(--accent2);outline-offset:1px;}
+.tbl-inp.wide{min-width:130px;}
+.badge{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:700;padding:3px 9px;border-radius:20px;}
+.b-blue{background:var(--accent2-soft);color:var(--accent2);}
+.b-green{background:var(--success-soft);color:var(--success);}
+.b-grey{background:#F1F5F9;color:var(--ink-soft);}
+.b-red{background:var(--error-soft);color:var(--error);}
+.tabbar{display:flex;gap:4px;flex-wrap:wrap;border-bottom:1px solid var(--border);margin-bottom:16px;}
+.tabbtn{padding:9px 14px;font-size:13px;font-weight:600;color:var(--ink-soft);border:none;background:none;border-bottom:2px solid transparent;}
+.tabbtn.active{color:var(--accent);border-bottom-color:var(--accent);}
+.empty{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:50px 20px;text-align:center;border:1.5px dashed var(--border);border-radius:var(--radius);background:#FBFCFD;}
+.empty h3{margin:12px 0 6px;font-size:16px;}
+.empty p{color:var(--ink-soft);font-size:13px;margin:0 0 16px;max-width:360px;}
+.swatch{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px;vertical-align:middle;border:1px solid rgba(0,0,0,.12);}
+.fstep{display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px dashed var(--border);font-size:12.5px;gap:12px;}
+.fstep:last-child{border-bottom:none;}
+.fstep .lab{color:var(--ink-soft);}
+.fstep .val{font-weight:700;font-variant-numeric:tabular-nums;text-align:right;}
+.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:var(--ink);color:#fff;padding:10px 16px;border-radius:10px;display:flex;align-items:center;gap:12px;font-size:13px;z-index:70;box-shadow:var(--shadow);}
+.toast button{background:none;border:none;color:#7DD3C8;font-weight:700;font-size:13px;cursor:pointer;}
+.overlay{position:fixed;inset:0;background:rgba(15,23,42,.35);z-index:50;}
+.modal{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:60;width:430px;max-width:92vw;max-height:86vh;overflow:auto;}
+.chart-row{display:flex;align-items:center;gap:10px;margin-bottom:7px;font-size:12.5px;}
+.chart-label{width:150px;flex:0 0 150px;color:var(--ink-soft);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.chart-track{flex:1;background:#F1F5F9;border-radius:5px;height:20px;overflow:hidden;}
+.chart-bar{height:100%;border-radius:5px;display:block;}
+.chart-val{width:92px;flex:0 0 92px;text-align:right;font-weight:700;font-variant-numeric:tabular-nums;}
+@media(max-width:640px){.chart-label{width:92px;flex:0 0 92px;}.chart-val{width:76px;flex:0 0 76px;}}
+.note{display:flex;gap:8px;align-items:flex-start;font-size:12.5px;padding:12px 14px;border-radius:var(--radius-sm);}
+.note-info{background:var(--accent-soft);border:1px solid #CFE9E6;}
+.note-err{background:var(--error-soft);border:1px solid #F3C9C7;}
+.stack{display:grid;gap:16px;min-width:0;}
+/* Grid and flex children default to min-width:auto, which lets intrinsic
+   content (e.g. a select sizing to its longest option) force the whole
+   layout wider than the viewport. min-width:0 lets them shrink instead. */
+.stack > *{min-width:0;}
+.toolbar > div{min-width:0;}
+@media(max-width:640px){
+  .toolbar{flex-direction:column;align-items:stretch;}
+  .toolbar > div{flex-direction:column !important;align-items:stretch;width:100%;}
+  .toolbar .fi{width:100% !important;}
+  .toolbar > div:last-child{flex-direction:row !important;flex-wrap:wrap;}
+}
+#print-report{display:none;}
+@media print{
+  body{background:#fff;}
+  body>*{display:none !important;}
+  #print-report{display:block !important;}
+  #print-report h1{font-size:17px;margin:0 0 3px;}
+  #print-report h2{font-size:13px;margin:14px 0 5px;border-bottom:1px solid #999;padding-bottom:2px;}
+  #print-report table{font-size:9.5px;width:100%;border-collapse:collapse;}
+  #print-report th{background:#eee !important;-webkit-print-color-adjust:exact;print-color-adjust:exact;padding:4px 5px;font-size:8.5px;text-align:left;border-bottom:1px solid #999;}
+  #print-report td{padding:4px 5px;border-bottom:1px solid #ddd;}
+  #print-report tfoot td{background:#f4f4f4 !important;-webkit-print-color-adjust:exact;print-color-adjust:exact;font-weight:700;}
+  .pmeta{font-size:9.5px;color:#333;}
+  @page{size:A4;margin:13mm;}
+}
+</style>
+</head>
+<body>
+
+<header class="app">
+  <div class="wrap hrow">
+    <div class="brand">
+      <div class="brand-icon">T</div>
+      <div>
+        <div style="display:flex;align-items:center;flex-wrap:wrap;">
+          <span class="title">Thread Consumption Calculator</span>
+          <span class="badge-v">Factory Standard</span>
+        </div>
+        <div class="save-status"><span id="saveStatus">Ready</span></div>
+      </div>
+    </div>
+    <div class="hactions">
+      <button class="btn btn-outline btn-sm" id="btnSelfTest">Self-test</button>
+      <button class="btn btn-outline btn-sm" id="btnPrint">Print / PDF</button>
+      <button class="btn btn-outline btn-sm" id="btnCsv">Export CSV</button>
+      <button class="btn btn-outline btn-sm" id="btnJson">Export JSON</button>
+      <button class="btn btn-outline btn-sm" id="btnImport">Import</button>
+      <input type="file" id="fileImport" accept="application/json" style="display:none" />
+      <button class="btn btn-danger btn-sm" id="btnReset">Reset</button>
+    </div>
+  </div>
+</header>
+
+<nav class="steps">
+  <div class="wrap" style="display:flex;width:100%;">
+    <button class="step active" data-step="setup"><span class="step-num">1</span> Project Setup</button>
+    <button class="step" data-step="ops"><span class="step-num">2</span> Operations</button>
+    <button class="step" data-step="results"><span class="step-num">3</span> Results &amp; Booking</button>
+  </div>
+</nav>
+
+<main class="wrap" style="padding:22px 20px 60px;">
+
+  <section id="pane-setup" class="stack">
+    <div class="card">
+      <h2 class="section-title">Project &amp; style information</h2>
+      <p class="section-sub">Appears on the dashboard and the printed report.</p>
+      <div class="grid-2">
+        <div><label class="field-label" for="p_company">Company name</label><input class="fi" id="p_company" placeholder="e.g. Meridian Apparels Ltd." /></div>
+        <div><label class="field-label" for="p_buyer">Buyer</label><input class="fi" id="p_buyer" placeholder="Buyer name" /></div>
+        <div><label class="field-label" for="p_style">Style number</label><input class="fi" id="p_style" placeholder="e.g. TS-2201" /></div>
+        <div><label class="field-label" for="p_garment">Garment type</label><input class="fi" id="p_garment" placeholder="e.g. Basic knit T-shirt" /></div>
+        <div><label class="field-label" for="p_size">Size</label><input class="fi" id="p_size" placeholder="e.g. M / size set" /></div>
+        <div>
+          <label class="field-label" for="p_qty">Order quantity (pcs)</label>
+          <input class="fi" id="p_qty" type="number" min="1" step="1" value="1000" />
+          <div class="err" id="e_qty" style="display:none">Order quantity must be greater than zero.</div>
+        </div>
+        <div><label class="field-label" for="p_prepared">Prepared by</label><input class="fi" id="p_prepared" placeholder="Name" /></div>
+        <div><label class="field-label" for="p_date">Calculation date</label><input class="fi" id="p_date" type="date" /></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2 class="section-title">Default settings</h2>
+      <p class="section-sub">Applied to new operations. Cone length and price can be overridden per operation.</p>
+      <div class="grid-2">
+        <div>
+          <label class="field-label" for="p_wastage">Wastage %
+            <span class="hint" title="A practical allowance for trims, joins, re-work and machine breaks. This is NOT part of the factory master sheet — it is a general estimate and fully editable.">?</span>
+          </label>
+          <div class="chip-row" style="margin-bottom:8px;">
+            <button class="chip" data-wast="10">10%</button>
+            <button class="chip" data-wast="12">12%</button>
+            <button class="chip active" data-wast="15">15%</button>
+            <button class="chip" data-wast="custom">Custom</button>
+          </div>
+          <input class="fi" id="p_wastage" type="number" min="0" max="50" step="0.1" value="15" />
+          <div class="err" id="e_wastage" style="display:none">Wastage must be between 0% and 50%.</div>
+        </div>
+        <div><label class="field-label" for="p_currency">Currency</label><input class="fi" id="p_currency" value="USD" /></div>
+        <div>
+          <label class="field-label" for="p_conelen">Default cone length (m)</label>
+          <input class="fi" id="p_conelen" type="number" min="1" step="1" value="3000" />
+          <div class="err" id="e_conelen" style="display:none">Cone length must be greater than zero.</div>
+        </div>
+        <div>
+          <label class="field-label" for="p_coneprice">Default cone price</label>
+          <input class="fi" id="p_coneprice" type="number" min="0" step="0.01" value="180" />
+          <div class="err" id="e_coneprice" style="display:none">Cone price cannot be negative.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="note note-info">
+      <strong style="flex:0 0 auto;">i</strong>
+      <div>All 17 stitch classes, thread-path factors, machine allowances and needle allowances come directly from your factory master sheet. Seam length defaults to <strong>inches</strong> (the sheet's own basis); any other unit is converted automatically.</div>
+    </div>
+
+    <div style="display:flex;justify-content:flex-end;">
+      <button class="btn btn-primary" data-goto="ops">Continue to Operations &rarr;</button>
+    </div>
+  </section>
+
+  <section id="pane-ops" class="stack" style="display:none;">
+    <div class="card toolbar" style="display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;">
+      <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;flex:1;">
+        <input class="fi" id="f_search" placeholder="Search operations..." style="width:auto;flex:1 1 170px;" />
+        <select class="fi" id="f_stitch" style="width:auto;"><option value="">All stitch classes</option></select>
+        <select class="fi" id="f_colour" style="width:auto;"><option value="">All colours</option></select>
+        <select class="fi" id="f_sort" style="width:auto;">
+          <option value="serial">Sort: Operation #</option>
+          <option value="final">Sort: Final metres</option>
+          <option value="colour">Sort: Colour</option>
+        </select>
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;">
+        <button class="btn btn-outline btn-sm" id="btnDemo">Load Demo</button>
+        <button class="btn btn-outline btn-sm" id="btnClear">Clear all</button>
+        <button class="btn btn-primary btn-sm" id="btnAdd">+ Add operation</button>
+      </div>
+    </div>
+
+    <div id="excludedNote" style="display:none;" class="note note-err">
+      <strong style="flex:0 0 auto;">!</strong><div id="excludedText"></div>
+    </div>
+
+    <div id="opsEmpty" class="empty">
+      <div style="font-size:30px;">&#9986;</div>
+      <h3>No sewing operations added yet</h3>
+      <p>Add each sewing operation for this style using your factory's 17 approved stitch classes.</p>
+      <button class="btn btn-primary" id="btnAddFirst">+ Add First Operation</button>
+    </div>
+
+    <div id="opsTableWrap" class="tbl-wrap" style="display:none;">
+      <table>
+        <thead>
+          <tr>
+            <th style="width:38px;">#</th>
+            <th style="min-width:150px;">Operation</th>
+            <th style="min-width:180px;">Stitch class</th>
+            <th style="min-width:95px;">Seam length</th>
+            <th style="min-width:85px;">Unit</th>
+            <th style="min-width:70px;">Rows</th>
+            <th style="min-width:110px;">Thread colour</th>
+            <th class="num" style="min-width:95px;">Final m/pc</th>
+            <th style="width:112px;"></th>
+          </tr>
+        </thead>
+        <tbody id="opsBody"></tbody>
+        <tfoot>
+          <tr>
+            <td colspan="7">Total (valid operations only)</td>
+            <td class="num" id="foot_final">0.000</td>
+            <td></td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+
+    <div style="display:flex;justify-content:space-between;">
+      <button class="btn btn-outline" data-goto="setup">&larr; Back to Setup</button>
+      <button class="btn btn-primary" data-goto="results">Continue to Results &rarr;</button>
+    </div>
+  </section>
+
+  <section id="pane-results" style="display:none;">
+    <div class="tabbar">
+      <button class="tabbtn active" data-tab="overview">Overview</button>
+      <button class="tabbtn" data-tab="colour">By Colour</button>
+      <button class="tabbtn" data-tab="operation">By Operation</button>
+      <button class="tabbtn" data-tab="matrix">Colour &times; Operation</button>
+      <button class="tabbtn" data-tab="stitch">By Stitch</button>
+      <button class="tabbtn" data-tab="booking">Cone Booking</button>
+      <button class="tabbtn" data-tab="method">Methodology</button>
+    </div>
+    <div id="tab-overview"></div>
+    <div id="tab-colour" style="display:none;"></div>
+    <div id="tab-operation" style="display:none;"></div>
+    <div id="tab-matrix" style="display:none;"></div>
+    <div id="tab-stitch" style="display:none;"></div>
+    <div id="tab-booking" style="display:none;"></div>
+    <div id="tab-method" style="display:none;"></div>
+    <div style="margin-top:16px;">
+      <button class="btn btn-outline" data-goto="ops">&larr; Back to Operations</button>
+    </div>
+  </section>
+
+</main>
+
+<div id="print-report"></div>
+
+<script>
+/* =======================================================================
+   CALCULATION ENGINE - FACTORY STANDARD
+   Every stitch class, thread-path factor, machine allowance and needle
+   allowance below is copied verbatim from the user-supplied corrected
+   "Thread_Consumption_master_Sheet.xlsx". Nothing here is an invented
+   ratio or an adjusted value.
+
+   Confirmed directly by the user (not stated in the sheet itself):
+     - "meas" (seam length) is measured in INCHES.
+     - "frequency" = number of stitch rows / passes over the seam.
+   ======================================================================= */
+
+var UNIT_FACTORS = { mm:0.001, cm:0.01, inch:0.0254, foot:0.3048, yard:0.9144, metre:1 };
+var UNIT_LABELS  = { mm:"mm", cm:"cm", inch:"inch", foot:"foot", yard:"yard", metre:"metre" };
+var INCH_M = 0.0254;
+
+/* n1..n4 = Needle1..4 Factor | l1..l3 = Looper1..3 Factor
+   bobbin = Bobbin Factor | spreader = Spreader Factor
+   ma = machine allowance (verified: equals the sum of all factor columns)
+   na = Needle Allowance
+   family "A" -> (meas * ma) + na            [sheet formula has no frequency term]
+   family "B" -> ((meas + na) * ma) * frequency                              */
+var STITCH_MASTER = [
+  {code:"301", desc:"Single Needle Lockstitch", mach:"SNLS", family:"A", n1:2,n2:0,n3:0,n4:0, l1:0,l2:0,l3:0, bobbin:2, spreader:0, ma:4, na:6},
+  {code:"304", desc:"Zigzag Lockstitch", mach:"Bartack / buttonhole / zigzag", family:"A", n1:5,n2:0,n3:0,n4:0, l1:0,l2:0,l3:0, bobbin:5, spreader:0, ma:10, na:12},
+  {code:"401", desc:"Double Locked Chainstitch", mach:"DNCS", family:"B", n1:2.5,n2:0,n3:0,n4:0, l1:5,l2:0,l3:0, bobbin:0, spreader:0, ma:7.5, na:2},
+  {code:"402", desc:"2-Needle Chainstitch", mach:"Double needle chainstitch", family:"B", n1:2.5,n2:2.5,n3:0,n4:0, l1:10,l2:0,l3:0, bobbin:0, spreader:0, ma:15, na:2},
+  {code:"406", desc:"2-Needle Cover Stitch (bottom cover)", mach:"Cover stitch machine", family:"B", n1:2.7,n2:2.7,n3:0,n4:0, l1:11.6,l2:0,l3:0, bobbin:0, spreader:0, ma:17, na:2},
+  {code:"407", desc:"3-Needle Cover Stitch (bottom cover)", mach:"Cover stitch machine", family:"B", n1:2.7,n2:2.7,n3:2.7,n4:0, l1:14.2,l2:0,l3:0, bobbin:0, spreader:0, ma:22.3, na:2},
+  {code:"408", desc:"2-Needle Chainstitch w/ top cover thread", mach:"Cover and chain stitch machine", family:"B", n1:2.7,n2:2.7,n3:0,n4:0, l1:10,l2:0,l3:0, bobbin:0, spreader:9.6, ma:25, na:2},
+  {code:"504", desc:"3-Thread Overlock", mach:"3-thread overlock / serger", family:"B", n1:3.6,n2:0,n3:0,n4:0, l1:7,l2:7.4,l3:0, bobbin:0, spreader:0, ma:18, na:6},
+  {code:"512", desc:"4-Thread Overlock / Mock Safety", mach:"2-needle overlock (safety stitch)", family:"B", n1:2.5,n2:2.5,n3:0,n4:0, l1:7,l2:8,l3:0, bobbin:0, spreader:0, ma:20, na:6},
+  {code:"514", desc:"2-Needle 4-Thread Overedge", mach:"Overedging stitch", family:"B", n1:2.5,n2:2.5,n3:0,n4:0, l1:8.5,l2:8.5,l3:0, bobbin:0, spreader:0, ma:22, na:6},
+  {code:"516", desc:"5-Thread Safety Stitch (401+504)", mach:"Safety stitch overedging machine", family:"B", n1:2.8,n2:2.8,n3:0,n4:0, l1:6,l2:6,l3:5, bobbin:0, spreader:5.4, ma:28, na:6},
+  {code:"602", desc:"4-Thread Flatlock", mach:"Interlock machine (2 needle)", family:"B", n1:2.5,n2:2.5,n3:0,n4:0, l1:10,l2:0,l3:0, bobbin:0, spreader:10, ma:25, na:3},
+  {code:"605", desc:"5-Thread Flatlock", mach:"Interlock stitch machine (3 needle)", family:"B", n1:2.5,n2:2.5,n3:2.5,n4:0, l1:10.5,l2:0,l3:0, bobbin:0, spreader:10, ma:28, na:3},
+  {code:"607", desc:"6-Thread Flatlock / Interlock", mach:"Flat seamer / flat lock", family:"B", n1:2.5,n2:2.5,n3:2.5,n4:2.5, l1:11,l2:0,l3:0, bobbin:0, spreader:11, ma:32, na:3},
+  {code:"BrTk", desc:"Bartack", mach:"Bartack / cycle sewing machine", family:"A", n1:24,n2:0,n3:0,n4:0, l1:0,l2:0,l3:0, bobbin:24, spreader:0, ma:48, na:0},
+  {code:"BH", desc:"Button Hole", mach:"Button hole machine", family:"A", n1:28,n2:0,n3:0,n4:0, l1:0,l2:0,l3:0, bobbin:28, spreader:0, ma:56, na:0},
+  {code:"BA", desc:"Button Attach", mach:"Button attach machine", family:"A", n1:17,n2:0,n3:0,n4:0, l1:0,l2:0,l3:0, bobbin:17, spreader:0, ma:34, na:0}
+];
+var STITCH_BY = {};
+STITCH_MASTER.forEach(function(s){ STITCH_BY[s.code] = s; });
+
+/* Needle-thread share of the machine allowance, from the sheet's own factor
+   columns. Using a ratio (rather than a raw factor sum) keeps the needle /
+   looper split reconciling exactly to the total even when a user overrides
+   machine allowance or needle allowance on one operation. */
+function needleRatio(s){
+  var nsum = (s.family === "A") ? s.n1 : (s.n1 + s.n2 + s.n3 + s.n4);
+  return s.ma > 0 ? nsum / s.ma : 0;
+}
+function toMetres(len, unit){
+  var f = UNIT_FACTORS[unit];
+  return (Number(len) || 0) * (f == null ? 1 : f);
+}
+function ceilDiv(a,b){ if(!(b>0)) return 0; return Math.ceil(a/b - 1e-9); }
+
+function opIssues(op){
+  var s = STITCH_BY[op.stitchCode], out = [];
+  if(!s) out.push("Stitch class is not recognised.");
+  if(!(Number(op.seamLength) > 0)) out.push("Seam length must be greater than zero.");
+  if(s && s.family === "B"){
+    var f = Number(op.frequency);
+    if(!(isFinite(f) && Math.floor(f) === f && f >= 1)) out.push("Rows/passes must be a whole number of 1 or more.");
+  }
+  if(!(Number(op.ma) > 0)) out.push("Machine allowance must be greater than zero.");
+  if(!(Number(op.na) >= 0)) out.push("Needle allowance cannot be negative.");
+  return out;
+}
+function opValid(op){ return opIssues(op).length === 0; }
+
+/* Core per-operation calculation - the two formula families exactly as
+   written in the factory master sheet, then the practical wastage layer. */
+function computeOp(op, wastagePct){
+  var s = STITCH_BY[op.stitchCode];
+  if(!s) return {seamIn:0, basicIn:0, basic:0, needleBase:0, otherBase:0, waste:0, final:0, finalNeedle:0, finalOther:0};
+  var seamIn = toMetres(op.seamLength, op.unit) / INCH_M;
+  var ma = Number(op.ma) || 0, na = Number(op.na) || 0;
+  var basicIn;
+  if(s.family === "A"){
+    basicIn = seamIn * ma + na;
+  } else {
+    var freq = Math.max(1, Number(op.frequency) || 1);
+    basicIn = (seamIn + na) * ma * freq;
+  }
+  var r = needleRatio(s);
+  var basic = basicIn * INCH_M;
+  var needleBase = basic * r;
+  var otherBase  = basic * (1 - r);
+  var waste = basic * wastagePct / 100;
+  return {
+    seamIn: seamIn, basicIn: basicIn, basic: basic,
+    needleBase: needleBase, otherBase: otherBase, waste: waste,
+    final: basic + waste,
+    finalNeedle: needleBase * (1 + wastagePct/100),
+    finalOther:  otherBase  * (1 + wastagePct/100)
+  };
+}
+
+/* Thread groups: never merged across different colour / ticket / cone
+   length / cone price. Cones are ceilinged independently per group. */
+function coneLenOf(op, PP){ return Number(op.coneLen) > 0 ? Number(op.coneLen) : (Number(PP.coneLen) || 0); }
+function conePriceOf(op, PP){
+  return (op.conePrice !== "" && op.conePrice != null && Number(op.conePrice) >= 0)
+    ? Number(op.conePrice) : (Number(PP.conePrice) || 0);
+}
+function buildGroups(ops, W, qty, PP){
+  var map = {};
+  ops.filter(opValid).forEach(function(op){
+    var c = computeOp(op, W);
+    var colour = op.colour || "(unspecified)";
+    var ticket = op.ticket || "(unspecified)";
+    var cl = coneLenOf(op, PP), cp = conePriceOf(op, PP);
+    var key = [colour, ticket, cl, cp].join("|");
+    if(!map[key]) map[key] = {key:key, colour:colour, ticket:ticket, coneLen:cl, conePrice:cp, metres:0, ops:0};
+    map[key].metres += c.final;
+    map[key].ops += 1;
+  });
+  return Object.keys(map).map(function(k){
+    var g = map[k];
+    var orderMetres = g.metres * qty;
+    var cones = ceilDiv(orderMetres, g.coneLen);
+    var perM = g.coneLen > 0 ? g.conePrice / g.coneLen : 0;
+    g.orderMetres = orderMetres;
+    g.cones = cones;
+    g.theoreticalCost = orderMetres * perM;
+    g.purchaseCost = cones * g.conePrice;
+    return g;
+  }).sort(function(a,b){ return b.orderMetres - a.orderMetres; });
+}
+
+/* Colour-wise summary - colour is the booking unit on the floor. */
+function buildColourSummary(ops, W, qty, PP, groups){
+  var map = {};
+  ops.filter(opValid).forEach(function(op){
+    var c = computeOp(op, W);
+    var colour = op.colour || "(unspecified)";
+    if(!map[colour]) map[colour] = {colour:colour, ops:0, basic:0, waste:0, final:0, needle:0, other:0, cones:0, purchaseCost:0, theoreticalCost:0};
+    var m = map[colour];
+    m.ops += 1; m.basic += c.basic; m.waste += c.waste; m.final += c.final;
+    m.needle += c.finalNeedle; m.other += c.finalOther;
+  });
+  /* Cones and cost per colour are summed from that colour's own thread
+     groups, so two different tickets of the same colour still round up
+     to whole cones separately rather than being merged. */
+  groups.forEach(function(g){
+    if(map[g.colour]){
+      map[g.colour].cones += g.cones;
+      map[g.colour].purchaseCost += g.purchaseCost;
+      map[g.colour].theoreticalCost += g.theoreticalCost;
+    }
+  });
+  return Object.keys(map).map(function(k){
+    var m = map[k];
+    m.orderMetres = m.final * qty;
+    return m;
+  }).sort(function(a,b){ return b.final - a.final; });
+}
+
+function buildSummary(ops, W, qty, PP){
+  var valid = ops.filter(opValid);
+  var calcs = valid.map(function(op){ return {op:op, calc:computeOp(op, W)}; });
+  var sum = function(fn){ return calcs.reduce(function(a,r){ return a + fn(r.calc); }, 0); };
+  var groups = buildGroups(ops, W, qty, PP);
+  var finalPer = sum(function(c){return c.final;});
+  return {
+    calcs: calcs,
+    basic: sum(function(c){return c.basic;}),
+    waste: sum(function(c){return c.waste;}),
+    final: finalPer,
+    needle: sum(function(c){return c.finalNeedle;}),
+    other: sum(function(c){return c.finalOther;}),
+    orderMetres: finalPer * qty,
+    groups: groups,
+    colours: buildColourSummary(ops, W, qty, PP, groups),
+    totalCones: groups.reduce(function(a,g){return a+g.cones;},0),
+    theoreticalCost: groups.reduce(function(a,g){return a+g.theoreticalCost;},0),
+    purchaseCost: groups.reduce(function(a,g){return a+g.purchaseCost;},0),
+    excluded: ops.length - valid.length
+  };
+}
+
+/* ---------- Self-test: hand-verified against the factory sheet ---------- */
+function runSelfTests(){
+  var R = [], near = function(a,b){ return Math.abs(a-b) < 1e-4; };
+  function T(name, exp, act){ R.push({name:name, exp:exp, act:Math.round(act*1e6)/1e6, pass:near(exp,act)}); }
+
+  STITCH_MASTER.forEach(function(s){
+    var sum = s.n1+s.n2+s.n3+s.n4+s.l1+s.l2+s.l3+s.bobbin+s.spreader;
+    sum = Math.round(sum*1e6)/1e6;
+    R.push({name:"Sheet integrity - "+s.code+" factors sum to machine allowance", exp:s.ma, act:sum, pass:near(sum,s.ma)});
+  });
+
+  T("TC1 - 301 lockstitch final (family A)", 1.34366, computeOp({stitchCode:"301", seamLength:10, unit:"inch", ma:4, na:6}, 15).final);
+  T("TC2 - Bartack final (family A, NA=0)", 1.40208, computeOp({stitchCode:"BrTk", seamLength:1, unit:"inch", ma:48, na:0}, 15).final);
+  T("TC3 - 401 chainstitch final (family B)", 4.81965, computeOp({stitchCode:"401", seamLength:20, unit:"inch", ma:7.5, na:2, frequency:1}, 15).final);
+  T("TC4 - 504 overlock final (double pass)", 21.12264, computeOp({stitchCode:"504", seamLength:15, unit:"inch", ma:18, na:6, frequency:2}, 10).final);
+  T("TC5 - 602 flatlock final", 10.668, computeOp({stitchCode:"602", seamLength:12, unit:"inch", ma:25, na:3, frequency:1}, 12).final);
+  T("TC6 - 406 uses corrected MA 17", 17, STITCH_BY["406"].ma);
+  T("TC7 - 407 uses corrected MA 22.3", 22.3, STITCH_BY["407"].ma);
+  T("TC8 - 607 needle share = 10/32", 10/32, needleRatio(STITCH_BY["607"]));
+  var c9 = computeOp({stitchCode:"607", seamLength:8, unit:"inch", ma:32, na:3, frequency:1}, 15);
+  T("TC9 - reconciliation: needle + looper = final", c9.final, c9.finalNeedle + c9.finalOther);
+  var c10 = computeOp({stitchCode:"401", seamLength:20, unit:"inch", ma:8, na:2, frequency:1}, 15);
+  T("TC10 - reconciliation holds with overridden MA", c10.final, c10.finalNeedle + c10.finalOther);
+  T("TC11 - unit conversion 100cm to inches", 39.3701, computeOp({stitchCode:"301", seamLength:100, unit:"cm", ma:4, na:6}, 0).seamIn);
+  T("TC12 - cone ceiling exact multiple (3000/3000)", 1, ceilDiv(3000, 3000));
+  T("TC13 - cone ceiling rounds up (3162.5/3000)", 2, ceilDiv(3162.5, 3000));
+
+  /* Two colours, each needing 2336.8 m against a 1000 m cone, must book
+     3 cones EACH (6 total). Ceilinging a merged 4673.6 m total would give
+     only 5 - which would under-book the floor by a whole cone. */
+  var twoColour = [
+    {stitchCode:"301", seamLength:10, unit:"inch", ma:4, na:6, colour:"Red",  ticket:"T1", coneLen:"", conePrice:""},
+    {stitchCode:"301", seamLength:10, unit:"inch", ma:4, na:6, colour:"Blue", ticket:"T1", coneLen:"", conePrice:""}
+  ];
+  var gg = buildGroups(twoColour, 0, 2000, {coneLen:1000, conePrice:100});
+  var perGroupCones = gg.reduce(function(a,g){ return a + g.cones; }, 0);
+  var mergedCones = ceilDiv(gg.reduce(function(a,g){ return a + g.orderMetres; }, 0), 1000);
+  T("TC14 - cones ceilinged per colour (3+3)", 6, perGroupCones);
+  R.push({name:"TC15 - per-colour booking differs from a merged total", exp:"6 not 5",
+          act:perGroupCones + " not " + mergedCones, pass:(perGroupCones === 6 && mergedCones === 5)});
+  return R;
+}
+
+/* =======================================================================
+   STATE
+   ======================================================================= */
+var seq = 0;
+function uid(){ seq++; return "op" + seq + "_" + Math.random().toString(36).slice(2,7); }
+function fmt(n,d){ d = (d==null)?3:d; return isFinite(n) ? Number(n).toFixed(d) : (0).toFixed(d); }
+function esc(s){ return String(s==null?"":s).replace(/[&<>"']/g, function(c){ return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]; }); }
+function csvCell(s){ s = String(s==null?"":s); return /[",\n]/.test(s) ? '"'+s.replace(/"/g,'""')+'"' : s; }
+
+var P = { qty:1000, wastage:15, currency:"USD", coneLen:3000, conePrice:180 };
+var OPS = [];
+var TAB = "overview";
+var toastTimer = null;
+
+function newOp(ov){
+  var s = STITCH_MASTER[0];
+  var o = { id:uid(), name:"", stitchCode:s.code, seamLength:0, unit:"inch", frequency:1,
+            ma:s.ma, na:s.na, colour:"", ticket:"", coneLen:"", conePrice:"", notes:"" };
+  if(ov) for(var k in ov) o[k] = ov[k];
+  return o;
+}
+
+/* Deterministic hue per colour name, so the same colour always shows the
+   same dot across every tab and chart. */
+function colourHue(name){
+  var str = String(name||""), h = 0;
+  for(var i=0;i<str.length;i++) h = (h*31 + str.charCodeAt(i)) % 360;
+  return "hsl("+h+",62%,58%)";
+}
+function colourDot(name){ return '<span class="swatch" style="background:'+colourHue(name)+'"></span>'; }
+
+/* =======================================================================
+   PERSISTENCE - real localStorage, since this runs on your own website.
+   Wrapped in try/catch so the page still works if storage is blocked
+   (private browsing, or a sandboxed preview frame).
+   ======================================================================= */
+var STORE_KEY = "tcc_factory_v1";
+var storageOK = true;
+var saveTimer = null;
+function setStatus(t){ document.getElementById("saveStatus").textContent = t; }
+function save(){
+  try{
+    localStorage.setItem(STORE_KEY, JSON.stringify({P:P, OPS:OPS, meta:readMeta(), savedAt:new Date().toISOString()}));
+    setStatus("Saved - " + new Date().toLocaleTimeString());
+  }catch(e){
+    storageOK = false;
+    setStatus("Not saved (browser storage unavailable)");
+  }
+}
+function scheduleSave(){
+  setStatus("Saving...");
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(save, 400);
+}
+var META_IDS = ["p_company","p_buyer","p_style","p_garment","p_size","p_prepared","p_date"];
+function readMeta(){
+  var m = {};
+  META_IDS.forEach(function(id){ m[id] = document.getElementById(id).value; });
+  return m;
+}
+function load(){
+  try{
+    var raw = localStorage.getItem(STORE_KEY);
+    if(!raw) return false;
+    var d = JSON.parse(raw);
+    if(d.P) for(var k in d.P) P[k] = d.P[k];
+    if(Array.isArray(d.OPS)) OPS = d.OPS.map(function(o){ var n = newOp(o); n.id = uid(); return n; });
+    if(d.meta) META_IDS.forEach(function(id){ if(d.meta[id] != null) document.getElementById(id).value = d.meta[id]; });
+    return true;
+  }catch(e){ storageOK = false; return false; }
+}
+
+/* =======================================================================
+   STEP 2 - OPERATIONS TABLE
+   Split into a full rebuild (structural changes only) and a lightweight
+   per-row patch (ordinary edits). Rebuilding the tbody on every keystroke
+   destroys the focused input and drops partial values like "0." - so
+   ordinary edits never touch the input elements.
+   ======================================================================= */
+function visibleOps(){
+  var q = (document.getElementById("f_search").value || "").trim().toLowerCase();
+  var fs = document.getElementById("f_stitch").value;
+  var fc = document.getElementById("f_colour").value;
+  var sort = document.getElementById("f_sort").value;
+  var list = OPS.map(function(op,i){ return {op:op, serial:i+1, calc:computeOp(op, P.wastage), valid:opValid(op)}; });
+  if(q)  list = list.filter(function(r){ return (r.op.name||"").toLowerCase().indexOf(q) !== -1; });
+  if(fs) list = list.filter(function(r){ return r.op.stitchCode === fs; });
+  if(fc) list = list.filter(function(r){ return (r.op.colour || "(unspecified)") === fc; });
+  if(sort === "final")  list.sort(function(a,b){ return b.calc.final - a.calc.final; });
+  if(sort === "colour") list.sort(function(a,b){ return (a.op.colour||"").localeCompare(b.op.colour||"") || a.serial - b.serial; });
+  return list;
+}
+
+function renderTable(){
+  var rows = visibleOps();
+  document.getElementById("opsEmpty").style.display = OPS.length ? "none" : "flex";
+  document.getElementById("opsTableWrap").style.display = OPS.length ? "block" : "none";
+
+  var html = "";
+  rows.forEach(function(r){
+    var op = r.op, s = STITCH_BY[op.stitchCode];
+    var opts = STITCH_MASTER.map(function(x){
+      return '<option value="'+x.code+'"'+(x.code===op.stitchCode?' selected':'')+'>'+esc(x.code+" - "+x.desc)+'</option>';
+    }).join("");
+    var units = Object.keys(UNIT_LABELS).map(function(u){
+      return '<option value="'+u+'"'+(u===op.unit?' selected':'')+'>'+UNIT_LABELS[u]+'</option>';
+    }).join("");
+    var freqCell = (s && s.family === "B")
+      ? '<input class="tbl-inp" type="number" min="1" step="1" data-f="frequency" data-id="'+op.id+'" value="'+esc(op.frequency)+'" aria-label="Rows or passes" />'
+      : '<span style="font-size:12px;color:var(--ink-soft)" title="This stitch class formula has no frequency term">1 fixed</span>';
+
+    html += '<tr data-row="'+op.id+'" class="'+(r.valid?"":"invalid")+'">'
+      + '<td>'+r.serial+'</td>'
+      + '<td><input class="tbl-inp wide" data-f="name" data-id="'+op.id+'" value="'+esc(op.name)+'" placeholder="e.g. Shoulder join" aria-label="Operation name" /></td>'
+      + '<td><select class="tbl-inp" data-f="stitchCode" data-id="'+op.id+'" aria-label="Stitch class">'+opts+'</select></td>'
+      + '<td><input class="tbl-inp" type="number" min="0" step="0.01" data-f="seamLength" data-id="'+op.id+'" value="'+esc(op.seamLength)+'" aria-label="Seam length" /></td>'
+      + '<td><select class="tbl-inp" data-f="unit" data-id="'+op.id+'" aria-label="Unit">'+units+'</select></td>'
+      + '<td>'+freqCell+'</td>'
+      + '<td><input class="tbl-inp" data-f="colour" data-id="'+op.id+'" value="'+esc(op.colour)+'" placeholder="e.g. Black" aria-label="Thread colour" /></td>'
+      + '<td class="num" data-cell="final" data-id="'+op.id+'" style="font-weight:700;">'+fmt(r.calc.final)+'</td>'
+      + '<td><div class="row-actions">'
+        + '<button class="icon-btn" data-act="view" data-id="'+op.id+'" title="View calculation" aria-label="View calculation">&#128269;</button>'
+        + '<button class="icon-btn" data-act="more" data-id="'+op.id+'" title="Advanced settings" aria-label="Advanced settings">&#9881;</button>'
+        + '<button class="icon-btn" data-act="dup" data-id="'+op.id+'" title="Duplicate" aria-label="Duplicate">&#10697;</button>'
+        + '<button class="icon-btn danger" data-act="del" data-id="'+op.id+'" title="Delete" aria-label="Delete">&#128465;</button>'
+      + '</div></td>'
+      + '</tr>';
+    /* The issue row ALWAYS exists in the DOM and is only shown/hidden.
+       Adding or removing it on the fly would be a structural change, which
+       would force a rebuild mid-typing and scramble keystrokes. */
+    html += '<tr data-issue="'+op.id+'" class="issue-row invalid" style="display:none;">'
+          + '<td></td><td colspan="8" style="padding-top:0;">'
+          + '<span class="err" style="margin:0;" data-issuetext="'+op.id+'"></span></td></tr>';
+  });
+  document.getElementById("opsBody").innerHTML = html;
+  refreshFilters();
+  recalcLight();
+}
+
+/* Lightweight path: patch only computed cells + totals. Never rebuilds inputs. */
+function recalcLight(){
+  var totalFinal = 0, excluded = 0;
+  OPS.forEach(function(op){
+    var c = computeOp(op, P.wastage);
+    var cell = document.querySelector('[data-cell="final"][data-id="'+op.id+'"]');
+    if(cell) cell.textContent = fmt(c.final);
+    var issues = opIssues(op);
+    var valid = issues.length === 0;
+    /* Patch validity display in place - never rebuild, so the focused input
+       and its caret are untouched while the user is typing. */
+    var rowEl = document.querySelector('[data-row="'+op.id+'"]');
+    if(rowEl){ if(valid) rowEl.classList.remove("invalid"); else rowEl.classList.add("invalid"); }
+    var issueEl = document.querySelector('[data-issue="'+op.id+'"]');
+    if(issueEl) issueEl.style.display = valid ? "none" : "table-row";
+    var textEl = document.querySelector('[data-issuetext="'+op.id+'"]');
+    if(textEl) textEl.textContent = valid ? "" : ("! " + issues.join(" "));
+    if(valid) totalFinal += c.final; else excluded++;
+  });
+  var foot = document.getElementById("foot_final");
+  if(foot) foot.textContent = fmt(totalFinal);
+  var note = document.getElementById("excludedNote");
+  if(excluded > 0){
+    note.style.display = "flex";
+    document.getElementById("excludedText").textContent =
+      excluded + " operation" + (excluded===1?"":"s") + " incomplete or invalid - excluded from all totals.";
+  } else { note.style.display = "none"; }
+  scheduleSave();
+}
+
+function refreshFilters(){
+  var sel = document.getElementById("f_colour");
+  var cur = sel.value;
+  var seen = {}, list = [];
+  OPS.forEach(function(op){
+    var c = op.colour || "(unspecified)";
+    if(!seen[c]){ seen[c] = 1; list.push(c); }
+  });
+  sel.innerHTML = '<option value="">All colours</option>' + list.map(function(c){
+    return '<option value="'+esc(c)+'"'+(c===cur?' selected':'')+'>'+esc(c)+'</option>';
+  }).join("");
+}
+
+document.getElementById("opsBody").addEventListener("input", function(e){
+  var t = e.target, f = t.getAttribute("data-f"), id = t.getAttribute("data-id");
+  if(!f || !id) return;
+  var op = OPS.filter(function(o){ return o.id === id; })[0];
+  if(!op) return;
+  op[f] = t.value;
+  if(f === "colour") refreshFilters();
+  /* Ordinary edits ALWAYS take the lightweight path. recalcLight() patches
+     computed cells and the validity display in place and never touches an
+     input element, so typing is never interrupted and partial values like
+     "0." or "12.7" survive intact. */
+  recalcLight();
+});
+document.getElementById("opsBody").addEventListener("change", function(e){
+  var t = e.target, f = t.getAttribute("data-f"), id = t.getAttribute("data-id");
+  if(f !== "stitchCode" && f !== "unit") return;
+  var op = OPS.filter(function(o){ return o.id === id; })[0];
+  if(!op) return;
+  if(f === "stitchCode"){
+    var s = STITCH_BY[t.value];
+    op.stitchCode = t.value; op.ma = s.ma; op.na = s.na; op.frequency = 1;
+    renderTable();
+  } else { op.unit = t.value; recalcLight(); }
+});
+document.getElementById("opsBody").addEventListener("click", function(e){
+  var b = e.target.closest ? e.target.closest("[data-act]") : null;
+  if(!b) return;
+  var act = b.getAttribute("data-act"), id = b.getAttribute("data-id");
+  if(act === "del") delOp(id);
+  if(act === "dup") dupOp(id);
+  if(act === "view") viewCalc(id);
+  if(act === "more") advanced(id);
+});
+
+function addOp(){ OPS.push(newOp()); renderTable(); }
+function dupOp(id){
+  var i = OPS.map(function(o){return o.id;}).indexOf(id);
+  if(i < 0) return;
+  var c = JSON.parse(JSON.stringify(OPS[i]));
+  c.id = uid(); c.name = (c.name || "Operation") + " (copy)";
+  OPS.splice(i+1, 0, c);
+  renderTable();
+}
+function delOp(id){
+  var i = OPS.map(function(o){return o.id;}).indexOf(id);
+  if(i < 0) return;
+  var removed = OPS[i];
+  OPS.splice(i,1);
+  renderTable();
+  showToast('Deleted "' + (removed.name || "Untitled operation") + '"', function(){
+    OPS.splice(i, 0, removed);
+    renderTable();
+    hideToast();
+  });
+}
+function showToast(msg, undo){
+  hideToast();
+  var d = document.createElement("div");
+  d.className = "toast"; d.id = "toast"; d.setAttribute("role","status");
+  var sp = document.createElement("span"); sp.textContent = msg; d.appendChild(sp);
+  if(undo){
+    var b = document.createElement("button");
+    b.textContent = "Undo"; b.onclick = undo; d.appendChild(b);
+  }
+  var x = document.createElement("button");
+  x.innerHTML = "&times;"; x.style.color = "#94A3B8"; x.onclick = hideToast; d.appendChild(x);
+  document.body.appendChild(d);
+  toastTimer = setTimeout(hideToast, 6000);
+}
+function hideToast(){
+  clearTimeout(toastTimer);
+  var t = document.getElementById("toast");
+  if(t) t.parentNode.removeChild(t);
+}
+
+function openModal(html){
+  closeModal();
+  var ov = document.createElement("div");
+  ov.className = "overlay"; ov.id = "overlay"; ov.onclick = closeModal;
+  var m = document.createElement("div");
+  m.className = "card modal"; m.id = "modal"; m.setAttribute("role","dialog");
+  m.innerHTML = html;
+  document.body.appendChild(ov); document.body.appendChild(m);
+}
+function closeModal(){
+  var a = document.getElementById("overlay"), b = document.getElementById("modal");
+  if(a) a.parentNode.removeChild(a);
+  if(b) b.parentNode.removeChild(b);
+}
+document.addEventListener("keydown", function(e){ if(e.key === "Escape") closeModal(); });
+
+function viewCalc(id){
+  var op = OPS.filter(function(o){return o.id===id;})[0];
+  if(!op) return;
+  var s = STITCH_BY[op.stitchCode], c = computeOp(op, P.wastage);
+  var adj = (Number(op.ma) !== s.ma) || (Number(op.na) !== s.na);
+  var f = (s.family === "A") ? "(meas &times; MA) + NA" : "((meas + NA) &times; MA) &times; rows";
+  var rows = [
+    ["Stitch class", esc(s.code + " - " + s.desc)],
+    ["Machine type", esc(s.mach)],
+    ["Original seam length", esc(op.seamLength + " " + UNIT_LABELS[op.unit])],
+    ["Converted to inches", fmt(c.seamIn) + " in"]
+  ];
+  if(s.family === "B") rows.push(["Rows / passes (frequency)", esc(op.frequency)]);
+  rows.push(["Machine allowance (MA)", fmt(Number(op.ma),2)]);
+  rows.push(["Needle allowance (NA)", fmt(Number(op.na),2)]);
+  rows.push(["Factory formula", f]);
+  rows.push(["Basic consumption", fmt(c.basicIn) + " in = <strong>" + fmt(c.basic) + " m</strong>"]);
+  rows.push(["Needle thread share (" + fmt(needleRatio(s)*100,1) + "%)", fmt(c.needleBase) + " m"]);
+  rows.push(["Looper / bobbin / spreader share", fmt(c.otherBase) + " m"]);
+  rows.push(["Wastage (" + P.wastage + "%)", fmt(c.waste) + " m"]);
+  rows.push(["<strong>Final consumption / garment</strong>", "<strong>" + fmt(c.final) + " m</strong>"]);
+  rows.push(["Final needle (incl. wastage)", fmt(c.finalNeedle) + " m"]);
+  rows.push(["Final looper/bobbin (incl. wastage)", fmt(c.finalOther) + " m"]);
+  rows.push(["Order-level (&times; " + P.qty + " pcs)", "<strong>" + fmt(c.final * P.qty) + " m</strong>"]);
+
+  openModal(
+    '<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;">'
+    + '<div><h3 class="section-title">' + esc(op.name || "Untitled operation") + '</h3>'
+    + '<span class="badge ' + (adj ? "b-blue" : "b-green") + '">' + (adj ? "User-adjusted allowances" : "Published factory values") + '</span></div>'
+    + '<button class="icon-btn" onclick="closeModal()" aria-label="Close">&times;</button></div>'
+    + '<div style="margin-top:14px;">'
+    + rows.map(function(r){ return '<div class="fstep"><span class="lab">'+r[0]+'</span><span class="val">'+r[1]+'</span></div>'; }).join("")
+    + '</div>'
+  );
+}
+
+function advanced(id){
+  var op = OPS.filter(function(o){return o.id===id;})[0];
+  if(!op) return;
+  var s = STITCH_BY[op.stitchCode];
+  openModal(
+    '<div style="display:flex;justify-content:space-between;align-items:center;">'
+    + '<h3 class="section-title">Advanced settings</h3>'
+    + '<button class="icon-btn" onclick="closeModal()" aria-label="Close">&times;</button></div>'
+    + '<p class="section-sub">' + esc(s.code + " - " + s.desc) + '</p>'
+    + '<div class="grid-2">'
+    + '<div><label class="field-label">Machine allowance <span class="hint" title="Published factory value: the sum of all needle, looper, bobbin and spreader factors for this stitch class.">?</span></label>'
+    + '<input class="fi" type="number" min="0" step="0.01" id="adv_ma" value="'+esc(op.ma)+'" /></div>'
+    + '<div><label class="field-label">Needle allowance <span class="hint" title="Published factory constant for this stitch class.">?</span></label>'
+    + '<input class="fi" type="number" min="0" step="0.01" id="adv_na" value="'+esc(op.na)+'" /></div>'
+    + '<div><label class="field-label">Thread ticket / Tex</label><input class="fi" id="adv_ticket" value="'+esc(op.ticket)+'" placeholder="e.g. Tex 30" /></div>'
+    + '<div><label class="field-label">Cone length override (m)</label><input class="fi" type="number" min="0" id="adv_conelen" value="'+esc(op.coneLen)+'" placeholder="Default: '+esc(P.coneLen)+'" /></div>'
+    + '<div><label class="field-label">Cone price override</label><input class="fi" type="number" min="0" step="0.01" id="adv_coneprice" value="'+esc(op.conePrice)+'" placeholder="Default: '+esc(P.conePrice)+'" /></div>'
+    + '</div>'
+    + '<div style="margin-top:12px;"><label class="field-label">Notes</label><textarea class="fi" rows="2" id="adv_notes">'+esc(op.notes)+'</textarea></div>'
+    + '<div style="margin-top:10px;font-size:11.5px;color:var(--ink-soft);">Published for this class: MA '+s.ma+' &middot; NA '+s.na+'</div>'
+    + '<div style="display:flex;justify-content:flex-end;gap:8px;margin-top:16px;">'
+    + '<button class="btn btn-outline" onclick="closeModal()">Cancel</button>'
+    + '<button class="btn btn-primary" onclick="saveAdvanced(\''+op.id+'\')">Save</button></div>'
+  );
+}
+function saveAdvanced(id){
+  var op = OPS.filter(function(o){return o.id===id;})[0];
+  if(!op) return;
+  op.ma        = document.getElementById("adv_ma").value;
+  op.na        = document.getElementById("adv_na").value;
+  op.ticket    = document.getElementById("adv_ticket").value;
+  op.coneLen   = document.getElementById("adv_conelen").value;
+  op.conePrice = document.getElementById("adv_coneprice").value;
+  op.notes     = document.getElementById("adv_notes").value;
+  closeModal();
+  renderTable();
+}
+
+/* =======================================================================
+   STEP 3 - RESULTS
+   ======================================================================= */
+function bars(items, useColour){
+  if(!items.length) return '<div class="empty" style="padding:26px;"><p style="margin:0;">No valid operations yet.</p></div>';
+  var max = Math.max.apply(null, items.map(function(i){ return i.value; }));
+  if(!(max > 0)) max = 1;
+  return items.map(function(i){
+    var pct = Math.max(1, (i.value / max) * 100);
+    var fill = useColour ? colourHue(i.label) : "var(--accent)";
+    return '<div class="chart-row">'
+      + '<span class="chart-label" title="'+esc(i.label)+'">'+esc(i.label)+'</span>'
+      + '<span class="chart-track"><span class="chart-bar" style="width:'+pct+'%;background:'+fill+'"></span></span>'
+      + '<span class="chart-val">'+fmt(i.value)+' m</span></div>';
+  }).join("");
+}
+function kpi(label, val, unit, sub, strong){
+  return '<div class="kpi'+(strong?" strong":"")+'">'
+    + '<div class="kpi-label">'+esc(label)+'</div>'
+    + '<div class="kpi-value">'+val+(unit?'<span class="kpi-unit">'+esc(unit)+'</span>':'')+'</div>'
+    + '<div class="kpi-sub">'+esc(sub||"")+'</div></div>';
+}
+
+function renderResults(){
+  var S = buildSummary(OPS, P.wastage, P.qty, P);
+  var cur = P.currency || "";
+  var needlePct = S.final > 0 ? (S.needle / S.final * 100) : 0;
+
+  /* ---- Overview ---- */
+  var topOps = S.calcs.map(function(r){ return {label:r.op.name || "(unnamed)", value:r.calc.final}; })
+                      .sort(function(a,b){ return b.value - a.value; }).slice(0,8);
+  document.getElementById("tab-overview").innerHTML =
+    (S.excluded > 0 ? '<div class="note note-err" style="margin-bottom:16px;"><strong>!</strong><div>'+S.excluded+' operation'+(S.excluded===1?"":"s")+' excluded from all totals due to incomplete or invalid data.</div></div>' : '')
+    + '<span class="badge b-blue" style="margin-bottom:10px;">Estimated result - factory-standard formulas</span>'
+    + '<div class="kpi-grid" style="margin-bottom:18px;">'
+      + kpi("Basic m / garment", fmt(S.basic), "m", "Before wastage")
+      + kpi("Wastage m / garment", fmt(S.waste), "m", P.wastage + "% practical allowance")
+      + kpi("Final m / garment", fmt(S.final), "m", "Basic + wastage", true)
+      + kpi("Final needle m", fmt(S.needle), "m", fmt(needlePct,1) + "% of final")
+      + kpi("Final looper/bobbin m", fmt(S.other), "m", fmt(100-needlePct,1) + "% of final")
+      + kpi("Total order metres", fmt(S.orderMetres), "m", "x " + P.qty + " pcs", true)
+      + kpi("Thread colours", S.colours.length, "", "Distinct colours used")
+      + kpi("Thread groups", S.groups.length, "", "Colour x ticket x cone")
+      + kpi("Total cones", S.totalCones, "", "Rounded up per group", true)
+      + kpi("Purchase cost", esc(cur) + " " + fmt(S.purchaseCost,2), "", "Whole cones x price", true)
+    + '</div>'
+    + '<div class="card"><h3 class="section-title">Top thread-consuming operations</h3>'
+      + '<p class="section-sub">Final metres per garment, highest first.</p>' + bars(topOps, false) + '</div>';
+
+  /* ---- By Colour ---- */
+  var colourBars = S.colours.map(function(c){ return {label:c.colour, value:c.final}; });
+  var colourRows = S.colours.map(function(c){
+    return '<tr>'
+      + '<td>'+colourDot(c.colour)+esc(c.colour)+'</td>'
+      + '<td class="num">'+c.ops+'</td>'
+      + '<td class="num">'+fmt(c.basic)+'</td>'
+      + '<td class="num">'+fmt(c.waste)+'</td>'
+      + '<td class="num" style="font-weight:700;">'+fmt(c.final)+'</td>'
+      + '<td class="num">'+fmt(c.needle)+'</td>'
+      + '<td class="num">'+fmt(c.other)+'</td>'
+      + '<td class="num">'+fmt(c.orderMetres)+'</td>'
+      + '<td class="num" style="font-weight:700;">'+c.cones+'</td>'
+      + '<td class="num">'+esc(cur)+' '+fmt(c.purchaseCost,2)+'</td>'
+      + '</tr>';
+  }).join("");
+  document.getElementById("tab-colour").innerHTML = S.colours.length
+    ? '<div class="stack">'
+      + '<div class="card"><h3 class="section-title">Consumption by thread colour</h3>'
+        + '<p class="section-sub">Final metres per garment, by colour.</p>'
+        + bars(colourBars, true) + '</div>'
+      + '<div class="card"><h3 class="section-title">Colour-wise summary</h3>'
+        + '<p class="section-sub">Cones and cost are summed from each colour\'s own thread groups, so two different tickets of the same colour still round up separately.</p>'
+        + '<div class="tbl-wrap"><table><thead><tr>'
+          + '<th>Colour</th><th class="num">Ops</th><th class="num">Basic m/pc</th><th class="num">Waste m/pc</th>'
+          + '<th class="num">Final m/pc</th><th class="num">Needle m/pc</th><th class="num">Looper m/pc</th>'
+          + '<th class="num">Order m</th><th class="num">Cones</th><th class="num">Purchase cost</th>'
+        + '</tr></thead><tbody>' + colourRows + '</tbody>'
+        + '<tfoot><tr><td>Total</td><td class="num">'+S.calcs.length+'</td><td class="num">'+fmt(S.basic)+'</td>'
+        + '<td class="num">'+fmt(S.waste)+'</td><td class="num">'+fmt(S.final)+'</td><td class="num">'+fmt(S.needle)+'</td>'
+        + '<td class="num">'+fmt(S.other)+'</td><td class="num">'+fmt(S.orderMetres)+'</td>'
+        + '<td class="num">'+S.totalCones+'</td><td class="num">'+esc(cur)+' '+fmt(S.purchaseCost,2)+'</td></tr></tfoot>'
+        + '</table></div></div></div>'
+    : '<div class="empty"><p>No valid operations yet.</p></div>';
+
+  /* ---- By Operation ---- */
+  var opRows = S.calcs.map(function(r,i){
+    var s = STITCH_BY[r.op.stitchCode];
+    return '<tr>'
+      + '<td>'+(i+1)+'</td>'
+      + '<td>'+esc(r.op.name || "(unnamed)")+'</td>'
+      + '<td>'+esc(s.code)+'</td>'
+      + '<td>'+esc(r.op.seamLength + " " + UNIT_LABELS[r.op.unit])+'</td>'
+      + '<td class="num">'+(s.family==="B" ? esc(r.op.frequency) : "1")+'</td>'
+      + '<td>'+colourDot(r.op.colour||"(unspecified)")+esc(r.op.colour || "(unspecified)")+'</td>'
+      + '<td class="num">'+fmt(r.calc.basic)+'</td>'
+      + '<td class="num">'+fmt(r.calc.waste)+'</td>'
+      + '<td class="num" style="font-weight:700;">'+fmt(r.calc.final)+'</td>'
+      + '<td class="num">'+fmt(r.calc.finalNeedle)+'</td>'
+      + '<td class="num">'+fmt(r.calc.finalOther)+'</td>'
+      + '<td class="num">'+fmt(r.calc.final * P.qty)+'</td>'
+      + '</tr>';
+  }).join("");
+  document.getElementById("tab-operation").innerHTML = S.calcs.length
+    ? '<div class="card"><h3 class="section-title">Operation-wise summary</h3>'
+      + '<p class="section-sub">Every valid operation, with its thread split and order-level consumption.</p>'
+      + '<div class="tbl-wrap"><table><thead><tr>'
+        + '<th>#</th><th>Operation</th><th>Stitch</th><th>Seam</th><th class="num">Rows</th><th>Colour</th>'
+        + '<th class="num">Basic m/pc</th><th class="num">Waste m/pc</th><th class="num">Final m/pc</th>'
+        + '<th class="num">Needle m/pc</th><th class="num">Looper m/pc</th><th class="num">Order m</th>'
+      + '</tr></thead><tbody>' + opRows + '</tbody>'
+      + '<tfoot><tr><td colspan="6">Total</td><td class="num">'+fmt(S.basic)+'</td><td class="num">'+fmt(S.waste)+'</td>'
+      + '<td class="num">'+fmt(S.final)+'</td><td class="num">'+fmt(S.needle)+'</td><td class="num">'+fmt(S.other)+'</td>'
+      + '<td class="num">'+fmt(S.orderMetres)+'</td></tr></tfoot>'
+      + '</table></div></div>'
+    : '<div class="empty"><p>No valid operations yet.</p></div>';
+
+  /* ---- Colour x Operation matrix ---- */
+  var colours = S.colours.map(function(c){ return c.colour; });
+  var matrixRows = S.calcs.map(function(r){
+    var oc = r.op.colour || "(unspecified)";
+    var cells = colours.map(function(c){
+      return '<td class="num">' + (c === oc ? fmt(r.calc.final) : '<span style="color:#CBD5E1">-</span>') + '</td>';
+    }).join("");
+    return '<tr><td>'+esc(r.op.name || "(unnamed)")+'</td>'+cells+'<td class="num" style="font-weight:700;">'+fmt(r.calc.final)+'</td></tr>';
+  }).join("");
+  var matrixFoot = colours.map(function(c){
+    var t = S.colours.filter(function(x){ return x.colour === c; })[0];
+    return '<td class="num">'+fmt(t ? t.final : 0)+'</td>';
+  }).join("");
+  document.getElementById("tab-matrix").innerHTML = S.calcs.length
+    ? '<div class="card"><h3 class="section-title">Colour &times; Operation matrix</h3>'
+      + '<p class="section-sub">Final metres per garment. Shows exactly which operation draws from which colour - useful when checking a booking sheet line by line.</p>'
+      + '<div class="tbl-wrap"><table><thead><tr><th>Operation</th>'
+      + colours.map(function(c){ return '<th class="num">'+colourDot(c)+esc(c)+'</th>'; }).join("")
+      + '<th class="num">Row total</th></tr></thead>'
+      + '<tbody>'+matrixRows+'</tbody>'
+      + '<tfoot><tr><td>Colour total</td>'+matrixFoot+'<td class="num">'+fmt(S.final)+'</td></tr></tfoot>'
+      + '</table></div></div>'
+    : '<div class="empty"><p>No valid operations yet.</p></div>';
+
+  /* ---- By Stitch ---- */
+  var byS = {};
+  S.calcs.forEach(function(r){
+    var k = r.op.stitchCode;
+    if(!byS[k]) byS[k] = {code:k, ops:0, final:0, needle:0, other:0};
+    byS[k].ops++; byS[k].final += r.calc.final;
+    byS[k].needle += r.calc.finalNeedle; byS[k].other += r.calc.finalOther;
+  });
+  var sRows = Object.keys(byS).sort().map(function(k){
+    var g = byS[k], s = STITCH_BY[k];
+    return '<tr><td>'+esc(s.code)+'</td><td>'+esc(s.desc)+'</td><td>'+esc(s.mach)+'</td>'
+      + '<td class="num">'+g.ops+'</td><td class="num">'+fmt(g.needle)+'</td>'
+      + '<td class="num">'+fmt(g.other)+'</td><td class="num" style="font-weight:700;">'+fmt(g.final)+'</td></tr>';
+  }).join("");
+  document.getElementById("tab-stitch").innerHTML = S.calcs.length
+    ? '<div class="card"><h3 class="section-title">Consumption by stitch class</h3>'
+      + '<div class="tbl-wrap"><table><thead><tr><th>Code</th><th>Description</th><th>Machine</th>'
+      + '<th class="num">Ops</th><th class="num">Needle m/pc</th><th class="num">Looper m/pc</th><th class="num">Final m/pc</th>'
+      + '</tr></thead><tbody>'+sRows+'</tbody></table></div></div>'
+    : '<div class="empty"><p>No valid operations yet.</p></div>';
+
+  /* ---- Cone Booking ---- */
+  var gRows = S.groups.map(function(g){
+    return '<tr><td>'+colourDot(g.colour)+esc(g.colour)+'</td><td>'+esc(g.ticket)+'</td>'
+      + '<td class="num">'+fmt(g.metres)+'</td><td class="num">'+fmt(g.orderMetres)+'</td>'
+      + '<td class="num">'+esc(g.coneLen)+'</td><td class="num">'+esc(cur)+' '+fmt(g.conePrice,2)+'</td>'
+      + '<td class="num" style="font-weight:700;">'+g.cones+'</td>'
+      + '<td class="num">'+esc(cur)+' '+fmt(g.theoreticalCost,2)+'</td>'
+      + '<td class="num" style="font-weight:700;">'+esc(cur)+' '+fmt(g.purchaseCost,2)+'</td></tr>';
+  }).join("");
+  document.getElementById("tab-booking").innerHTML = S.groups.length
+    ? '<div class="stack">'
+      + '<div class="card"><h3 class="section-title">Cone requirement by thread group</h3>'
+        + '<p class="section-sub">Groups are never merged across different colour, ticket/Tex, cone length or cone price. Each group is rounded up to whole cones independently.</p>'
+        + '<div class="tbl-wrap"><table><thead><tr>'
+        + '<th>Colour</th><th>Ticket/Tex</th><th class="num">m / garment</th><th class="num">Order m</th>'
+        + '<th class="num">Cone length</th><th class="num">Cone price</th><th class="num">Cones</th>'
+        + '<th class="num">Theoretical cost</th><th class="num">Purchase cost</th>'
+        + '</tr></thead><tbody>'+gRows+'</tbody>'
+        + '<tfoot><tr><td colspan="3">Total</td><td class="num">'+fmt(S.orderMetres)+'</td><td></td><td></td>'
+        + '<td class="num">'+S.totalCones+'</td><td class="num">'+esc(cur)+' '+fmt(S.theoreticalCost,2)+'</td>'
+        + '<td class="num">'+esc(cur)+' '+fmt(S.purchaseCost,2)+'</td></tr></tfoot>'
+        + '</table></div></div>'
+      + '<div class="note note-info"><strong>i</strong><div><strong>Theoretical cost</strong> values only the metres actually consumed. <strong>Purchase cost</strong> values the whole cones you must buy - the difference is unavoidable part-cone remainder.</div></div>'
+      + '</div>'
+    : '<div class="empty"><p>No valid operations yet.</p></div>';
+
+  /* ---- Methodology ---- */
+  document.getElementById("tab-method").innerHTML =
+    '<div class="card"><h3 class="section-title">Methodology and limitations</h3>'
+    + '<ul style="margin:0;padding-left:18px;font-size:13px;line-height:1.75;color:var(--ink-soft);">'
+    + '<li><strong style="color:var(--ink)">Source: factory-specific.</strong> All 17 stitch classes, thread-path factors, machine allowances and needle allowances are taken directly from your corrected <em>Thread_Consumption_master_Sheet.xlsx</em>. No published or third-party ratio is used anywhere.</li>'
+    + '<li>Seam length ("meas") is measured in <strong style="color:var(--ink)">inches</strong>, matching the sheet\'s basis. Other units are converted using exact standard ratios before the formula is applied.</li>'
+    + '<li>"Rows / passes" (the sheet\'s <em>frequency</em>) is the number of times the seam is stitched over. It only appears in the formula for 401, 402, 406, 407, 408, 504, 512, 514, 516, 602, 605 and 607. The sheet\'s formula for 301, 304, Bartack, Button Hole and Button Attach has no frequency term, so those always compute a single pass.</li>'
+    + '<li>Two formula families, exactly as written in the sheet:<br><code>(meas &times; machine allowance) + needle allowance</code> - for 301, 304, BrTk, BH, BA<br><code>((meas + needle allowance) &times; machine allowance) &times; frequency</code> - for the other 12 classes</li>'
+    + '<li>The needle vs. looper/bobbin/spreader split is derived from each stitch class\'s own factor columns (needle factors divided by machine allowance) - not a separately invented percentage. It reconciles exactly to the final consumption, even when machine allowance or needle allowance is overridden on a single operation.</li>'
+    + '<li><strong style="color:var(--ink)">General estimate:</strong> the wastage percentage (default 15%, presets 10% / 12% / custom) is a practical allowance for trims, joins, re-work and machine breaks. It is <em>not</em> part of the factory master sheet and is fully editable.</li>'
+    + '<li>Cones are rounded up to whole units <em>per thread group</em>, never on a combined total - two colours needing 1.2 cones each means buying 4 cones, not 3.</li>'
+    + '<li>The master sheet was corrected once after its initial version: the looper/spreader factors for 406, 407, 408 and 516 were revised, and 607\'s 4th needle-thread path (previously recorded under "Bobbin Factor") now has its own Needle4 column. All 17 rows\' factor columns sum exactly to their stated machine allowance - the Self-test button verifies this.</li>'
+    + '<li>Not modelled in this version: fabric thickness, number of plies, seam width, thread tension, machine condition and operator technique. Actual floor consumption may differ.</li>'
+    + '</ul></div>';
+
+  buildPrint(S);
+}
+
+/* =======================================================================
+   PRINT REPORT (A4)
+   ======================================================================= */
+function buildPrint(S){
+  var cur = P.currency || "";
+  var g = function(id){ return esc(document.getElementById(id).value || "-"); };
+  var opRows = S.calcs.map(function(r,i){
+    var s = STITCH_BY[r.op.stitchCode];
+    return '<tr><td>'+(i+1)+'</td><td>'+esc(r.op.name||"(unnamed)")+'</td><td>'+esc(s.code)+'</td>'
+      + '<td>'+esc(r.op.seamLength+" "+UNIT_LABELS[r.op.unit])+'</td>'
+      + '<td class="num">'+(s.family==="B"?esc(r.op.frequency):"1")+'</td>'
+      + '<td>'+esc(r.op.colour||"-")+'</td>'
+      + '<td class="num">'+fmt(r.calc.basic)+'</td><td class="num">'+fmt(r.calc.final)+'</td></tr>';
+  }).join("");
+  var colRows = S.colours.map(function(c){
+    return '<tr><td>'+esc(c.colour)+'</td><td class="num">'+c.ops+'</td><td class="num">'+fmt(c.final)+'</td>'
+      + '<td class="num">'+fmt(c.orderMetres)+'</td><td class="num">'+c.cones+'</td>'
+      + '<td class="num">'+esc(cur)+' '+fmt(c.purchaseCost,2)+'</td></tr>';
+  }).join("");
+  var grpRows = S.groups.map(function(x){
+    return '<tr><td>'+esc(x.colour)+'</td><td>'+esc(x.ticket)+'</td><td class="num">'+fmt(x.orderMetres)+'</td>'
+      + '<td class="num">'+esc(x.coneLen)+'</td><td class="num">'+x.cones+'</td>'
+      + '<td class="num">'+esc(cur)+' '+fmt(x.purchaseCost,2)+'</td></tr>';
+  }).join("");
+
+  document.getElementById("print-report").innerHTML =
+    '<h1>'+g("p_company")+' - Thread Consumption Report</h1>'
+    + '<div class="pmeta">Buyer: '+g("p_buyer")+' &middot; Style: '+g("p_style")+' &middot; Garment: '+g("p_garment")+' &middot; Size: '+g("p_size")+' &middot; Order Qty: '+P.qty+' pcs<br>'
+    + 'Prepared by: '+g("p_prepared")+' &middot; Date: '+g("p_date")+' &middot; Currency: '+esc(cur)+' &middot; Wastage: '+P.wastage+'%</div>'
+    + '<h2>Calculation basis</h2>'
+    + '<div class="pmeta">Factory-standard method from the approved stitch master sheet (17 stitch classes; per-thread-path factors; seam length in inches). '
+    + 'Family A: (meas x MA) + NA. Family B: ((meas + NA) x MA) x rows. Wastage is a practical allowance, not part of the master sheet. Results are engineering estimates.</div>'
+    + '<h2>KPI summary</h2>'
+    + '<div class="pmeta">Basic '+fmt(S.basic)+' m/pc &middot; Wastage '+fmt(S.waste)+' m/pc &middot; <strong>Final '+fmt(S.final)+' m/pc</strong> &middot; '
+    + 'Needle '+fmt(S.needle)+' m/pc &middot; Looper/bobbin '+fmt(S.other)+' m/pc &middot; <strong>Total order '+fmt(S.orderMetres)+' m</strong> &middot; '
+    + 'Colours '+S.colours.length+' &middot; Thread groups '+S.groups.length+' &middot; <strong>Total cones '+S.totalCones+'</strong> &middot; '
+    + 'Theoretical cost '+esc(cur)+' '+fmt(S.theoreticalCost,2)+' &middot; <strong>Purchase cost '+esc(cur)+' '+fmt(S.purchaseCost,2)+'</strong></div>'
+    + '<h2>Colour-wise summary</h2>'
+    + '<table><thead><tr><th>Colour</th><th class="num">Ops</th><th class="num">Final m/pc</th><th class="num">Order m</th><th class="num">Cones</th><th class="num">Purchase cost</th></tr></thead>'
+    + '<tbody>'+colRows+'</tbody>'
+    + '<tfoot><tr><td>Total</td><td class="num">'+S.calcs.length+'</td><td class="num">'+fmt(S.final)+'</td><td class="num">'+fmt(S.orderMetres)+'</td><td class="num">'+S.totalCones+'</td><td class="num">'+esc(cur)+' '+fmt(S.purchaseCost,2)+'</td></tr></tfoot></table>'
+    + '<h2>Operation-wise summary</h2>'
+    + '<table><thead><tr><th>#</th><th>Operation</th><th>Stitch</th><th>Seam</th><th class="num">Rows</th><th>Colour</th><th class="num">Basic m/pc</th><th class="num">Final m/pc</th></tr></thead>'
+    + '<tbody>'+opRows+'</tbody>'
+    + '<tfoot><tr><td colspan="6">Total</td><td class="num">'+fmt(S.basic)+'</td><td class="num">'+fmt(S.final)+'</td></tr></tfoot></table>'
+    + '<h2>Thread-group cone booking</h2>'
+    + '<table><thead><tr><th>Colour</th><th>Ticket/Tex</th><th class="num">Order m</th><th class="num">Cone length</th><th class="num">Cones</th><th class="num">Purchase cost</th></tr></thead>'
+    + '<tbody>'+grpRows+'</tbody>'
+    + '<tfoot><tr><td colspan="4">Total</td><td class="num">'+S.totalCones+'</td><td class="num">'+esc(cur)+' '+fmt(S.purchaseCost,2)+'</td></tr></tfoot></table>'
+    + (S.excluded > 0 ? '<h2>Warnings</h2><div class="pmeta">'+S.excluded+' operation(s) excluded from all totals due to incomplete or invalid data.</div>' : '')
+    + '<div class="pmeta" style="margin-top:16px;border-top:1px solid #999;padding-top:6px;">Prepared by '+g("p_prepared")+' &middot; '+g("p_date")+' &middot; Estimated result - actual factory consumption may differ.</div>';
+}
+
+/* =======================================================================
+   EXPORT / IMPORT
+   ======================================================================= */
+function dl(content, name, type){
+  var b = new Blob([content], {type:type});
+  var u = URL.createObjectURL(b);
+  var a = document.createElement("a");
+  a.href = u; a.download = name;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  URL.revokeObjectURL(u);
+}
+document.getElementById("btnPrint").onclick = function(){
+  var S = buildSummary(OPS, P.wastage, P.qty, P);
+  buildPrint(S);
+  window.print();
+};
+document.getElementById("btnCsv").onclick = function(){
+  var head = ["Serial","Operation","Stitch Code","Description","Machine","Seam Length","Unit","Rows",
+              "Machine Allowance","Needle Allowance","Colour","Ticket","Basic m/pc","Needle m/pc",
+              "Looper m/pc","Waste m/pc","Final m/pc","Order m","Valid"];
+  var lines = [head.join(",")];
+  OPS.forEach(function(op,i){
+    var s = STITCH_BY[op.stitchCode], c = computeOp(op, P.wastage);
+    lines.push([i+1, csvCell(op.name), op.stitchCode, csvCell(s?s.desc:""), csvCell(s?s.mach:""),
+      op.seamLength, op.unit, (s && s.family==="B") ? op.frequency : 1, op.ma, op.na,
+      csvCell(op.colour), csvCell(op.ticket),
+      c.basic.toFixed(6), c.finalNeedle.toFixed(6), c.finalOther.toFixed(6),
+      c.waste.toFixed(6), c.final.toFixed(6), (c.final*P.qty).toFixed(6),
+      opValid(op) ? "Yes" : "No"].join(","));
+  });
+  var S = buildSummary(OPS, P.wastage, P.qty, P);
+  lines.push("");
+  lines.push("COLOUR-WISE SUMMARY");
+  lines.push(["Colour","Operations","Basic m/pc","Waste m/pc","Final m/pc","Needle m/pc","Looper m/pc","Order m","Cones","Theoretical cost","Purchase cost"].join(","));
+  S.colours.forEach(function(c){
+    lines.push([csvCell(c.colour), c.ops, c.basic.toFixed(6), c.waste.toFixed(6), c.final.toFixed(6),
+      c.needle.toFixed(6), c.other.toFixed(6), c.orderMetres.toFixed(6), c.cones,
+      c.theoreticalCost.toFixed(2), c.purchaseCost.toFixed(2)].join(","));
+  });
+  lines.push("");
+  lines.push("THREAD-GROUP CONE BOOKING");
+  lines.push(["Colour","Ticket","Cone length","Cone price","Order m","Cones","Theoretical cost","Purchase cost"].join(","));
+  S.groups.forEach(function(g){
+    lines.push([csvCell(g.colour), csvCell(g.ticket), g.coneLen, g.conePrice,
+      g.orderMetres.toFixed(6), g.cones, g.theoreticalCost.toFixed(2), g.purchaseCost.toFixed(2)].join(","));
+  });
+  dl(lines.join("\n"), "thread_consumption.csv", "text/csv;charset=utf-8;");
+};
+document.getElementById("btnJson").onclick = function(){
+  dl(JSON.stringify({P:P, meta:readMeta(), OPS:OPS, exportedAt:new Date().toISOString()}, null, 2),
+     "thread_consumption.json", "application/json");
+};
+document.getElementById("btnImport").onclick = function(){ document.getElementById("fileImport").click(); };
+document.getElementById("fileImport").onchange = function(e){
+  var f = e.target.files && e.target.files[0];
+  if(!f) return;
+  var r = new FileReader();
+  r.onload = function(){
+    try{
+      var d = JSON.parse(String(r.result));
+      if(d.P) for(var k in d.P) P[k] = d.P[k];
+      if(d.meta) META_IDS.forEach(function(id){ if(d.meta[id] != null) document.getElementById(id).value = d.meta[id]; });
+      if(Array.isArray(d.OPS)) OPS = d.OPS.map(function(o){ var n = newOp(o); n.id = uid(); return n; });
+      syncProjectInputs(); validateProject(); renderTable(); save();
+      showToast("Calculation imported.");
+    }catch(err){ alert("This file could not be read as a valid calculation JSON export."); }
+  };
+  r.readAsText(f);
+  e.target.value = "";
+};
+
+/* =======================================================================
+   SELF-TEST
+   ======================================================================= */
+document.getElementById("btnSelfTest").onclick = function(){
+  var R = runSelfTests();
+  var pass = R.filter(function(t){ return t.pass; }).length;
+  var fail = R.length - pass;
+  openModal(
+    '<div style="display:flex;justify-content:space-between;align-items:center;">'
+    + '<h3 class="section-title">Self-test</h3>'
+    + '<button class="icon-btn" onclick="closeModal()" aria-label="Close">&times;</button></div>'
+    + '<p class="section-sub">Verifies master-sheet integrity and the calculation engine against hand-checked values.</p>'
+    + '<div style="display:flex;gap:8px;margin-bottom:12px;">'
+    + '<span class="badge b-green">' + pass + ' passed</span>'
+    + (fail ? '<span class="badge b-red">' + fail + ' failed</span>' : '')
+    + '</div>'
+    + '<div style="display:grid;gap:5px;">'
+    + R.map(function(t){
+        return '<div style="display:flex;justify-content:space-between;gap:10px;font-size:12px;padding:6px 8px;border-radius:7px;background:'
+          + (t.pass ? "var(--success-soft)" : "var(--error-soft)") + ';">'
+          + '<span>'+(t.pass?"&#10003;":"&#10007;")+' '+esc(t.name)+'</span>'
+          + '<span style="font-variant-numeric:tabular-nums;white-space:nowrap;">exp '+esc(t.exp)+' / got '+esc(t.act)+'</span></div>';
+      }).join("")
+    + '</div>'
+  );
+};
+
+/* =======================================================================
+   WIRING
+   ======================================================================= */
+function syncProjectInputs(){
+  document.getElementById("p_qty").value        = P.qty;
+  document.getElementById("p_wastage").value    = P.wastage;
+  document.getElementById("p_currency").value   = P.currency;
+  document.getElementById("p_conelen").value    = P.coneLen;
+  document.getElementById("p_coneprice").value  = P.conePrice;
+  markWastageChip();
+}
+function markWastageChip(){
+  var preset = ["10","12","15"].indexOf(String(P.wastage)) !== -1;
+  var chips = document.querySelectorAll(".chip[data-wast]");
+  for(var i=0;i<chips.length;i++){
+    var v = chips[i].getAttribute("data-wast");
+    var on = preset ? (v === String(P.wastage)) : (v === "custom");
+    if(on) chips[i].classList.add("active"); else chips[i].classList.remove("active");
+  }
+}
+function validateProject(){
+  var ok = true;
+  function mark(id, errId, good){
+    var el = document.getElementById(id);
+    if(good) el.classList.remove("invalid"); else el.classList.add("invalid");
+    document.getElementById(errId).style.display = good ? "none" : "flex";
+    if(!good) ok = false;
+  }
+  mark("p_qty", "e_qty", Number(P.qty) > 0);
+  mark("p_wastage", "e_wastage", Number(P.wastage) >= 0 && Number(P.wastage) <= 50);
+  mark("p_conelen", "e_conelen", Number(P.coneLen) > 0);
+  mark("p_coneprice", "e_coneprice", Number(P.conePrice) >= 0);
+  return ok;
+}
+var PMAP = {p_qty:"qty", p_wastage:"wastage", p_currency:"currency", p_conelen:"coneLen", p_coneprice:"conePrice"};
+Object.keys(PMAP).forEach(function(id){
+  document.getElementById(id).addEventListener("input", function(e){
+    var key = PMAP[id];
+    P[key] = (key === "currency") ? e.target.value : Number(e.target.value);
+    if(id === "p_wastage") markWastageChip();
+    validateProject();
+    recalcLight();
+  });
+});
+META_IDS.forEach(function(id){
+  document.getElementById(id).addEventListener("input", scheduleSave);
+});
+var chipEls = document.querySelectorAll(".chip[data-wast]");
+for(var ci=0; ci<chipEls.length; ci++){
+  (function(c){
+    c.onclick = function(){
+      var v = c.getAttribute("data-wast");
+      if(v === "custom"){
+        for(var j=0;j<chipEls.length;j++) chipEls[j].classList.remove("active");
+        c.classList.add("active");
+        document.getElementById("p_wastage").focus();
+        document.getElementById("p_wastage").select();
+        return;
+      }
+      P.wastage = Number(v);
+      document.getElementById("p_wastage").value = v;
+      markWastageChip();
+      validateProject();
+      recalcLight();
+    };
+  })(chipEls[ci]);
+}
+
+var stepEls = document.querySelectorAll(".step");
+for(var si=0; si<stepEls.length; si++){
+  (function(b){ b.onclick = function(){ goto(b.getAttribute("data-step")); }; })(stepEls[si]);
+}
+var gotoEls = document.querySelectorAll("[data-goto]");
+for(var gi=0; gi<gotoEls.length; gi++){
+  (function(b){ b.onclick = function(){ goto(b.getAttribute("data-goto")); }; })(gotoEls[gi]);
+}
+function goto(s){
+  document.getElementById("pane-setup").style.display   = (s === "setup") ? "grid" : "none";
+  document.getElementById("pane-ops").style.display     = (s === "ops") ? "grid" : "none";
+  document.getElementById("pane-results").style.display = (s === "results") ? "block" : "none";
+  var els = document.querySelectorAll(".step");
+  for(var i=0;i<els.length;i++){
+    if(els[i].getAttribute("data-step") === s) els[i].classList.add("active");
+    else els[i].classList.remove("active");
+  }
+  if(s === "results") renderResults();
+  window.scrollTo({top:0, behavior:"smooth"});
+}
+var tabEls = document.querySelectorAll(".tabbtn");
+for(var ti=0; ti<tabEls.length; ti++){
+  (function(b){
+    b.onclick = function(){
+      TAB = b.getAttribute("data-tab");
+      for(var i=0;i<tabEls.length;i++) tabEls[i].classList.remove("active");
+      b.classList.add("active");
+      ["overview","colour","operation","matrix","stitch","booking","method"].forEach(function(t){
+        document.getElementById("tab-"+t).style.display = (t === TAB) ? "block" : "none";
+      });
+    };
+  })(tabEls[ti]);
+}
+
+document.getElementById("btnAdd").onclick = addOp;
+document.getElementById("btnAddFirst").onclick = addOp;
+["f_search","f_stitch","f_colour","f_sort"].forEach(function(id){
+  document.getElementById(id).addEventListener("input", renderTable);
+  document.getElementById(id).addEventListener("change", renderTable);
+});
+document.getElementById("btnClear").onclick = function(){
+  if(!OPS.length) return;
+  openModal(
+    '<h3 class="section-title">Clear all operations?</h3>'
+    + '<p class="section-sub">This removes every sewing operation from this calculation. Project details are kept.</p>'
+    + '<div style="display:flex;justify-content:flex-end;gap:8px;">'
+    + '<button class="btn btn-outline" onclick="closeModal()">Cancel</button>'
+    + '<button class="btn btn-danger" onclick="doClear()">Clear all</button></div>'
+  );
+};
+function doClear(){ OPS = []; closeModal(); renderTable(); }
+document.getElementById("btnReset").onclick = function(){
+  openModal(
+    '<h3 class="section-title">Reset everything?</h3>'
+    + '<p class="section-sub">This clears project details and every operation, and wipes the saved copy in this browser.</p>'
+    + '<div style="display:flex;justify-content:flex-end;gap:8px;">'
+    + '<button class="btn btn-outline" onclick="closeModal()">Cancel</button>'
+    + '<button class="btn btn-danger" onclick="doReset()">Reset</button></div>'
+  );
+};
+function doReset(){
+  OPS = [];
+  P = { qty:1000, wastage:15, currency:"USD", coneLen:3000, conePrice:180 };
+  ["p_company","p_buyer","p_style","p_garment","p_size","p_prepared"].forEach(function(id){
+    document.getElementById(id).value = "";
+  });
+  document.getElementById("p_date").value = new Date().toISOString().slice(0,10);
+  try{ localStorage.removeItem(STORE_KEY); }catch(e){}
+  syncProjectInputs(); validateProject(); closeModal(); renderTable(); goto("setup");
+}
+document.getElementById("btnDemo").onclick = function(){
+  OPS = [
+    newOp({name:"Side seam - 504 overlock", stitchCode:"504", seamLength:15, unit:"inch", frequency:1, ma:18,  na:6, colour:"White", ticket:"Tex 30"}),
+    newOp({name:"Shoulder join - 401",      stitchCode:"401", seamLength:20, unit:"inch", frequency:1, ma:7.5, na:2, colour:"White", ticket:"Tex 30"}),
+    newOp({name:"Bottom hem - 406 cover",   stitchCode:"406", seamLength:26, unit:"inch", frequency:1, ma:17,  na:2, colour:"White", ticket:"Tex 30"}),
+    newOp({name:"Neck rib join - 301",      stitchCode:"301", seamLength:10, unit:"inch", ma:4, na:6, colour:"Navy", ticket:"Tex 40"}),
+    newOp({name:"Label attach - 301",       stitchCode:"301", seamLength:4,  unit:"inch", ma:4, na:6, colour:"Navy", ticket:"Tex 40"}),
+    newOp({name:"Belt loop bartack",        stitchCode:"BrTk",seamLength:1,  unit:"inch", ma:48, na:0, colour:"Black", ticket:"Tex 60"})
+  ];
+  P.qty = 500; P.wastage = 15; P.coneLen = 3000; P.conePrice = 1200;
+  syncProjectInputs(); validateProject(); renderTable();
+  showToast("Demo loaded - 3 colours across 6 operations.");
+};
+
+/* Boot */
+(function init(){
+  document.getElementById("p_date").value = new Date().toISOString().slice(0,10);
+  document.getElementById("f_stitch").innerHTML = '<option value="">All stitch classes</option>'
+    + STITCH_MASTER.map(function(s){ return '<option value="'+s.code+'">'+esc(s.code+" - "+s.desc)+'</option>'; }).join("");
+  var restored = load();
+  syncProjectInputs();
+  validateProject();
+  renderTable();
+  setStatus(storageOK ? (restored ? "Restored from this browser" : "Ready") : "Browser storage unavailable - changes will not be remembered");
+})();
+</script>
+</body>
+</html>
